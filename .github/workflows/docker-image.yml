@@ -9,7 +9,7 @@ on:
       - 'main' 
 
 jobs:
-  docker:
+  docker_build_push:
     runs-on: ubuntu-latest
     steps:
       -
@@ -34,3 +34,30 @@ jobs:
           context: .
           push: true
           tags: davidalkobi/app:latest
+
+   Deploy:
+      needs: docker_build_push
+      runs-on: ubuntu-latest
+      
+      steps:
+        - uses: actions/checkout@v2 
+        - name: Deploy in EC2
+          env:
+              PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY  }}
+              HOSTNAME : ${{ secrets.HOSTNAME  }}
+              USER_NAME : ${{ secrets.USER_NAME  }}
+              
+          run: |
+            echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+            ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+
+
+             #Now we have got the access of EC2 and we will start the deploy .
+            sudo yum install git
+            sudo yum install docker
+            cd /home/ec2-user/Python-APP &&
+            git checkout main &&
+            git fetch --all &&
+            git reset --hard origin/main &&
+            git pull origin main &&
+            docker run davidalkobi/app '
