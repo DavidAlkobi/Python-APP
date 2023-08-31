@@ -53,11 +53,9 @@ jobs:
 
 
              #Now we have got the access of EC2 and we will start the deploy .
-            sudo yum install git -y &&
-            sudo yum install docker -y &&
             cd /home/ec2-user/Python-APP &&
             git checkout main &&
             git fetch --all &&
             git reset --hard origin/main &&
             git pull origin main &&
-            docker run davidalkobi/app '
+            sudo docker run davidalkobi/app '
