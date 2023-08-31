@@ -53,8 +53,8 @@ jobs:
 
 
              #Now we have got the access of EC2 and we will start the deploy .
-            sudo yum install git
-            sudo yum install docker
+            sudo yum install git &&
+            sudo yum install docker &&
             cd /home/ec2-user/Python-APP &&
             git checkout main &&
             git fetch --all &&
