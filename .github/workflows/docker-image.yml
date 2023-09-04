@@ -27,13 +27,23 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Declare some variables
+        shell: bash
+        run: |
+          echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
+
+      - name: Another step
+        run: |
+          echo "Sha: ${{ env.sha_short }}"
+      
       -
         name: Build and push
         uses: docker/build-push-action@v4
         with:
           context: .
           push: true
-          tags: davidalkobi/app:$GITHUB_SHA
+          tags: davidalkobi/app:${{ env.sha_short }}"
 
    Deploy:
       needs: docker_build_push
