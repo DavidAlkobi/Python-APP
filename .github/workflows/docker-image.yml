@@ -33,7 +33,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: davidalkobi/app:${GIT_COMMIT}
+          tags: davidalkobi/app:$GITHUB_SHA
 
    Deploy:
       needs: docker_build_push
