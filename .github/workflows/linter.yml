@@ -19,4 +19,18 @@ jobs:
         env:
           VALIDATE_PYTHON_PYLINT: true
           DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+
+  build:
+
+    runs-on: ubuntu-latest
+  
+    steps:
+    - uses: actions/checkout@v3
+    - name: Declare some variables
+      shell: bash
+      run: |
+        echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag davidalkobi/app:${{ env.sha_short }}
+  
