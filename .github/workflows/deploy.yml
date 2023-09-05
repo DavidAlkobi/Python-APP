@@ -23,7 +23,7 @@ jobs:
       if: ${{ github.ref == 'refs/heads/main'}}
       run: |
         tag=test
-        sed -i "s|davidalkobi/app:.*|davidalkobi/app:test|" deploy.yaml
+        sed -i "s|davidalkobi/app:.*|davidalkobi/app:09328d8|" deploy.yaml
         git config --global user.email "daniel577000@gmail.com"
         git config --global user.name "github actions"
         git add deploy.yaml
