@@ -1,0 +1,30 @@
+name: CD
+on: 
+  push:
+    branches:
+      - main
+jobs:
+   CD:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: clone the gitops repo
+      id: clone-the-gitops-repo
+      uses: actions/checkout@v3
+      with:
+        repository: DavidAlkobi/infra_pythonApp
+        ref: main
+
+    - name: do some gitops
+      id: update-the-gitops-repo
+      if: ${{ github.ref == 'refs/heads/main'}}
+      run: |
+        tag=test
+        sed -i "s|davidalkobi/app:.*|davidalkobi/app:test|" deploy.yaml
+        git config --global user.email "daniel577000@gmail.com"
+        git config --global user.name "github actions"
+        git add deploy.yaml
+        git commit -m "update the image tag to test"
+        git push origin main
+
+  
