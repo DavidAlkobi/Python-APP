@@ -6,7 +6,9 @@ jobs:
     steps:
       # Checkout the branch
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with: 
+         token: ${{ secrets.access_token }}
 
       - name: save current date
         run: |
