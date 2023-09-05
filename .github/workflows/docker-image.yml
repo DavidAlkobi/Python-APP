@@ -9,12 +9,21 @@ on:
       - 'main' 
 
 jobs:
-   docker_build_push:
+
+
+ CI:
+    name: Lint code base
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Run Super-Linter
+        uses: super-linter/super-linter@v5
+        env:
+          VALIDATE_PYTHON_PYLINT: true
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -45,27 +54,29 @@ jobs:
           push: true
           tags: davidalkobi/app:${{ env.sha_short }}
 
-   Deploy:
-      needs: docker_build_push
-      runs-on: ubuntu-latest
-      
-      steps:
-        - uses: actions/checkout@v2 
-        - name: Deploy in EC2
-          env:
-              PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY  }}
-              HOSTNAME : ${{ secrets.HOSTNAME  }}
-              USER_NAME : ${{ secrets.USER_NAME  }}
-              
-          run: |
-            echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-            ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+ CD:
+    needs: CI
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: clone the gitops repo
+      id: clone-the-gitops-repo
+      uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.access_token}}
+        repository: DavidAlkobi/infra_pythonApp
+        ref: main
 
+    - name: do some gitops
+      id: update-the-gitops-repo
+      if: ${{ github.ref == 'refs/heads/main'}}
+      run: |
+        tag=test
+        sed -i "s|davidalkobi/app:.*|davidalkobi/app:env.sha_short|" deploy.yaml
+        git config --global user.email "daniel577000@gmail.com"
+        git config --global user.name "github actions"
+        git add deploy.yaml
+        git commit -m "update the image tag to test"
+        git push origin main
 
-             #Now we have got the access of EC2 and we will start the deploy .
-            cd /home/ec2-user/Python-APP &&
-            git checkout main &&
-            git fetch --all &&
-            git reset --hard origin/main &&
-            git pull origin main &&
-            sudo docker run davidalkobi/app '
+  
