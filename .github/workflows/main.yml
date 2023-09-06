@@ -69,11 +69,12 @@ jobs:
     - name: do some gitops
       id: update-the-gitops-repo
       if: ${{ github.ref == 'refs/heads/main'}}
+      env:
+          tag: ${{needs.CI.outputs.new_tag}}
       run: |
-        tag="${{ needs.CI.outputs.new_tag }}"
         echo $tag
         sed -i "s|davidalkobi/app:.*|davidalkobi/app:$tag|" deploy.yaml
-        git config --global user.email "daniel577000@gmail.com"
+        git config --global user.email "davidalk3@gmail.com"
         git config --global user.name "github actions"
         git add deploy.yaml
         git commit -m "update the image tag to test"
