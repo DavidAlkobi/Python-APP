@@ -42,7 +42,7 @@ jobs:
         shell: bash
         run: |
           echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
-          echo "::set-output name=new_tag::$sha_short"
+          echo "new_tag=$sha_short" >> $GITHUB_OUTPUT
           echo "$sha_short"
 
       -
@@ -71,6 +71,7 @@ jobs:
       if: ${{ github.ref == 'refs/heads/main'}}
       run: |
         tag="${{ needs.CI.outputs.new_tag }}"
+        echo $tag
         sed -i "s|davidalkobi/app:.*|davidalkobi/app:$tag|" deploy.yaml
         git config --global user.email "daniel577000@gmail.com"
         git config --global user.name "github actions"
