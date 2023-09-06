@@ -55,9 +55,9 @@ jobs:
  CD:
     needs: CI
     runs-on: ubuntu-latest
+    env: 
+      tag: ${{needs.CI.outputs.new_tag}}
     steps:
-    - env: 
-        tag: ${{needs.CI.outputs.new_tag}}
     - uses: actions/checkout@v3
     - name: clone the gitops repo
       id: clone-the-gitops-repo
