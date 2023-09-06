@@ -63,7 +63,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.tag.outputs.new_tag }}
+          tags: davidalkobi/app:${{ steps.tag.outputs.new_tag }}
 
  CD:
     needs: CI
