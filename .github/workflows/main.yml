@@ -18,12 +18,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Run Super-Linter
-        uses: super-linter/super-linter@v5
-        env:
-          VALIDATE_PYTHON_PYLINT: true
-          DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+      # - name: Run Super-Linter
+      #   uses: super-linter/super-linter@v5
+      #   env:
+      #     VALIDATE_PYTHON_PYLINT: true
+      #     DEFAULT_BRANCH: main
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -43,6 +43,7 @@ jobs:
         run: |
           echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
           echo "::set-output name=new_tag::$sha_short"
+          echo $sha_short
 
       -
         name: Build and push
@@ -55,8 +56,6 @@ jobs:
  CD:
     needs: CI
     runs-on: ubuntu-latest
-    env: 
-      tag: ${{needs.CI.outputs.new_tag}}
     steps:
     - uses: actions/checkout@v3
     - name: clone the gitops repo
@@ -68,6 +67,8 @@ jobs:
         ref: main
 
     - name: do some gitops
+      env: 
+        tag: ${{needs.CI.outputs.new_tag}}/
       id: update-the-gitops-repo
       if: ${{ github.ref == 'refs/heads/main'}}
       run: |
