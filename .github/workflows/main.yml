@@ -10,10 +10,11 @@ on:
 
 jobs:
 
-
  CI:
-    name: Lint code base
     runs-on: ubuntu-latest
+    outputs:
+      new_tag: ${{ steps.tag.outputs.new_tag }}
+    name: Lint code base
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -38,14 +39,12 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Declare some variables
+        id: tag
         shell: bash
         run: |
           echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
+          echo "::set-output name=new_tag::$sha_short"
 
-      - name: Another step
-        run: |
-          echo "Sha: ${{ env.sha_short }}"
-      
       -
         name: Build and push
         uses: docker/build-push-action@v4
@@ -58,6 +57,8 @@ jobs:
     needs: CI
     runs-on: ubuntu-latest
     steps:
+    - env: 
+        tag: ${{needs.CI.outputs.new_tag}}
     - uses: actions/checkout@v3
     - name: clone the gitops repo
       id: clone-the-gitops-repo
@@ -72,7 +73,7 @@ jobs:
       if: ${{ github.ref == 'refs/heads/main'}}
       run: |
         tag=test
-        sed -i "s|davidalkobi/app:.*|davidalkobi/app:${{ env.sha_short }}|" deploy.yaml
+        sed -i "s|davidalkobi/app:.*|davidalkobi/app:$tag|" deploy.yaml
         git config --global user.email "daniel577000@gmail.com"
         git config --global user.name "github actions"
         git add deploy.yaml
