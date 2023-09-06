@@ -37,8 +37,20 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Declare some variables
+      - name: Bump version and push tag
         id: tag
+        # Will be changed to master soon
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: anothrNick/github-tag-action@1.61.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.access_token }}
+          WITH_V: false
+          DEFAULT_BUMP: patch
+          INITIAL_VERSION: 1.0.0
+          DEFAULT_BRANCH: main
+
+      - name: Declare some variables
+        id: tag2
         shell: bash
         run: |
           echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
